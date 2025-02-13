@@ -1,3 +1,7 @@
+# This is a fork!
+
+actully it just has a single custom file in /build/, but still, this might be out of date so you should probably use the [original repo](https://github.com/GenericHeroGuy/ringracers-scripts) instead.
+
 # ringracers-scripts
 
 Lots of Lua scripts for [Dr. Robotnik's Ring Racers](https://www.kartkrew.org/)
