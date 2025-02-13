@@ -1,0 +1,26 @@
+$basepath src/sglua/
+$output out/leshu.pk3
+
+# build script for the stuff i like
+# - restat
+# - fast respawn
+# - fast spindash
+# - tumble tech
+# - slope tweaks
+# - drift gauge
+# - hitlist
+
+Lua/Utils/libsg2.lua
+
+Lua/Customization/restat.lua
+Lua/Gameplay/MiscTweaks/fastrespawn.lua
+Lua/Gameplay/MiscTweaks/fastspindash.lua
+Lua/Gameplay/MiscTweaks/tumbletech.lua
+Lua/Gameplay/Physics/slopes.lua
+Lua/HUD/driftgauge.lua
+Lua/HUD/hitlist.lua
+
+# graphics
+Graphics/Restat/**
+Graphics/HitList/**
+Graphics/DriftGauge/**
