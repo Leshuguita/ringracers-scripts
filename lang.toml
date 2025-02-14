@@ -1,3 +1,4 @@
+# leaderboard
 [LB_UNCLAIMED]
 en = "Unclaimed record"
 es = "No hay record"
@@ -73,3 +74,80 @@ es = "Guardando tiempo (%d)"
 [LB_ADDED_PROFILE]
 en = "Added new profile %d"
 es = "Perfil añadido %d"
+
+# restat
+[RS_SPD]
+en = " spd"
+es = "v"
+
+[RS_WT]
+en = " wt"
+es = "p"
+
+[RS_DEFAULT]
+en = "default"
+es = "por defecto"
+
+[RS_HELP]
+en = "\\134Try something like \\135restat 2 9\\134, \\135restat tails\\134, or \\135restat %s\\134."
+es = "\\134Prueba algo como \\135restat 2 9\\134, \\135restat tails\\134, o \\135restat %s\\134."
+
+[RS_USING_CHAR]
+en = "\\134*%s is now using \\130%s (%s)\\134 stats."
+es = "\\134*%s ahora tiene las stats de \\130%s (%s)\\134."
+
+[RS_USING_STATS]
+en = "\\134*%s is now \\130%s\\134."
+es = "\\134*%s ahora es \\130%s\\134."
+
+[RS_USING_DEFAULT]
+en = "\\134*%s returned to default stats."
+es = "\\134*%s volvio a sus stats por defecto."
+
+[RS_DISABLED]
+en = "\\138This function has been disabled by the server host."
+es = "\\138Esto no esta habilitado en el servidor."
+
+[RS_CURRENT_CHAR]
+en = "\\134You are currently using \\130%s\\134 stats."
+es = "\\134Estas usando las stats \\130%s\\134"
+
+[RS_RANDOM_ON_1]
+en = "\\134Random restat \\130enabled\\134. Your stats will be randomized every round."
+es = "\\134restat aleatorio \\130activado\\134. Tus stats seran elegidas al azar cada ronda."
+
+[RS_RANDOM_ON_2]
+en = "\\134Use \\135restat off\\134 or change to any other skin/stats to turn it off."
+es = "\\134Usa \\135restat off\\134 o cambia de skin/stats para desactivarlo."
+
+[RS_RANDOM_NAME]
+en = "Random restat"
+es = "Restat al azar"
+
+[RS_RESTAT_NAME]
+en = "Restat"
+es = "Restat"
+
+[RS_TURNED_OFF]
+en = "\\134%s\\130 disabled\\134. You will use the stats of your skin again."
+es = "\\134%s\\130 desactivado\\134. Usaras las stats de tu skin."
+
+[RS_OOB]
+en = "\\134Stats out of bounds. Legal values are 1-9."
+es = "\\134Stats fuera del rango. Los valores permitidos son entre 1 y 9."
+
+[RS_SKIN_NOT_FOUND]
+en = "\\134Couldn't find a matching skin."
+es = "\\134No se pudo encontrar una skin que coincida."
+
+[RS_RANDOM_OFF]
+en = "\\134Random restat \\130disabled\\134."
+es = "\\134Restat al azar \\130desactivado\\134."
+
+[RS_STATS_CHOSEN_1]
+en = "\\134OK! You will be \\130%s\\134 for the next race."
+es = "\\134OK! Vas a ser \\130%s\\134 a partir de la proxima carrera."
+
+[RS_STATS_CHOSEN_2]
+en = "\\134Use \\135restat off\\134 to return to your skin's default stats."
+es = "\\134Usa \\135restat off\\134 para volver a las stats de tu skin."

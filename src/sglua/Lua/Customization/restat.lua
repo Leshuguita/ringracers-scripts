@@ -21,7 +21,7 @@ local fmt = string.format
 
 -- common reused strings
 local function statstring(s, w)
-	return fmt("%d spd, %d wt", s, w)
+	return fmt("%d{{ RS_SPD }}, %d{{ RS_WT }}", s, w)
 end
 local function statusstring(p)
 	local rs = p.hostmod.restat
@@ -30,12 +30,12 @@ local function statusstring(p)
 	elseif rs.pendingspeed then
 		return statstring(rs.pendingspeed, rs.pendingweight)
 	else
-		return "default"
+		return "{{ RS_DEFAULT }}"
 	end
 end
 local function usage(p, str)
 	CONS_Printf(p, str)
-	CONS_Printf(p, fmt("\134Try something like \135restat 2 9\134, \135restat tails\134, or \135restat %s\134.", p.hostmod.restat.pendingspeed and "off" or "random"))
+	CONS_Printf(p, fmt("{{ RS_HELP }}", p.hostmod.restat.pendingspeed and "off" or "random"))
 end
 
 local function initstats(p)
@@ -68,12 +68,12 @@ local function updatestats(p)
 		if hostmod_restatnotify.value then
 			if rs.speed then
 				if rs.skin ~= "" then
-					chatprint(fmt("\134*%s is now using \130%s (%s)\134 stats.", p.name, rs.skin, statstring(rs.speed, rs.weight)), true)
+					chatprint(fmt("{{ RS_USING_CHAR }}", p.name, rs.skin, statstring(rs.speed, rs.weight)), true)
 				else
-					chatprint(fmt("\134*%s is now \130%s\134.", p.name, statstring(rs.speed, rs.weight)), true)
+					chatprint(fmt("{{ RS_USING_STATS }}", p.name, statstring(rs.speed, rs.weight)), true)
 				end
 			else
-				chatprint(fmt("\134*%s returned to default stats.", p.name), true)
+				chatprint(fmt("{{ RS_USING_DEFAULT }}", p.name), true)
 			end
 		end
 	end
@@ -99,7 +99,7 @@ end
 COM_AddCommand("restat", function(p, ...)
 	-- maybe i should dynamically register and unregister the command in this situation?
 	if not hostmod_restat.value then
-		CONS_Printf(p, "\138This function has been disabled by the server host.")
+		CONS_Printf(p, "{{ RS_DISABLED }}")
 		return
 	end
 
@@ -111,12 +111,12 @@ COM_AddCommand("restat", function(p, ...)
 	local rs = p.hostmod.restat
 
 	if not cmd then
-		usage(p, fmt("\134You are currently using \130%s\134 stats.", statusstring(p)))
+		usage(p, fmt("{{ RS_CURRENT_CHAR }}", statusstring(p)))
 		return
 	elseif cmd == "random" then
 		rs.random = true
-		CONS_Printf(p, "\134Random restat \130enabled\134. Your stats will be randomized every round.")
-		CONS_Printf(p, "\134Use \135restat off\134 or change to any other skin/stats to turn it off.")
+		CONS_Printf(p, "{{ RS_RANDOM_ON_1 }}")
+		CONS_Printf(p, "{{ RS_RANDOM_ON_2 }}")
 		return
 	elseif cmd == "randomonce" then
 		nspeed = P_RandomRange(1, 9)
@@ -127,11 +127,11 @@ COM_AddCommand("restat", function(p, ...)
 		rs.pendingweight = 0
 		rs.random = false
 		rs.skin = ""
-		CONS_Printf(p, fmt("\134%s\130 disabled\134. You will use the stats of your skin again.", rs.random and "Random restat" or "Restat"))
+		CONS_Printf(p, fmt("{{ RS_TURNED_OFF }}", rs.random and "{{ RS_RANDOM_NAME }}" or "{{ RS_RESTAT_NAME }}"))
 		return
 	elseif nspeed ~= nil and nweight ~= nil then
 		if min(nspeed, nweight) < 1 or max(nspeed, nweight) > 9 then
-			CONS_Printf(p, "\134Stats out of bounds. Legal values are 1-9.")
+			CONS_Printf(p, "{{ RS_OOB }}")
 			return
 		end
 		rs.skin = ""
@@ -143,7 +143,7 @@ COM_AddCommand("restat", function(p, ...)
 			nweight = skin.kartweight
 			rs.skin = skin.realname
 		else
-			usage(p, "\134Couldn't find a matching skin.")
+			usage(p, "{{ RS_SKIN_NOT_FOUND }}")
 			return
 		end
 	end
@@ -154,11 +154,11 @@ COM_AddCommand("restat", function(p, ...)
 
 	if rs.random then
 		rs.random = false
-		CONS_Printf(p, "\134Random restat \130disabled\134.")
+		CONS_Printf(p, "{{ RS_RANDOM_OFF }}")
 	end
 
-	CONS_Printf(p, fmt("\134OK! You will be \130%s\134 for the next race.", statstring(nspeed, nweight)))
-	CONS_Printf(p, "\134Use \135restat off\134 to return to your skin's default stats.")
+	CONS_Printf(p, fmt("{{ RS_STATS_CHOSEN_1 }}", statstring(nspeed, nweight)))
+	CONS_Printf(p, "{{ RS_STATS_CHOSEN_2 }}")
 end)
 
 addHook("ThinkFrame", function()
