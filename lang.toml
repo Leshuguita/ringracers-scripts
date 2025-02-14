@@ -1,0 +1,75 @@
+[LB_UNCLAIMED]
+en = "Unclaimed record"
+es = "No hay record"
+
+[LB_HELP_TITLE]
+en = "Leaderboard Commands:"
+es = "Comandos de Leaderboard:"
+
+[LB_HOW_DARE_YOU]
+en = "How dare you"
+es = "Como te atreves"
+
+[LB_CHGLVL_USAGE]
+en = "Usage: changelevel %s or Map Name"
+es = "Uso: changelevel %s o Nombre del Mapa"
+
+[LB_CHGLVL_INVALID]
+en = "Invalid map name: %s"
+es = "Nombre de mapa no valido: %s"
+
+[LB_CHGLVL_NOT_FOUND]
+en = "Map doesn't exist: %s"
+es = "El mapa no existe: %s"
+
+[LB_CHGLVL_INCOMPATIBLE]
+en = "Incompatible gametype: %s"
+es = "Modo de juego no compatible: %s"
+
+[LB_CHGLVL_DISABLED]
+en = "Gametype %s has been disabled by the server."
+es = "El modo de juego %s esta desactivado en este servidor."
+
+[LB_RIVAL_HELP]
+en = "Print the times of your rival.\\nUsage: rival <playername> <page>"
+es = "Muestra los tiempos de tu rival.\\nUso: rival <jugador> <pagina>"
+
+[LB_RIVAL_TITLE]
+en = "\\x89%s's times:"
+es = "\\x89Tiempos de %s:"
+
+[LB_RIVAL_HEADER]
+en = "MAP\\tTime\\tDiff    \\tMode"
+es = "MAPA\\tTiempo\\tDif    \\tModo"
+
+[LB_RIVAL_YOURS]
+en = "Your score = %s%s%s"
+es = "Tu tiempo = %s%s%s"
+
+[LB_RIVAL_PAGE]
+en = "Page %d out of %d"
+es = "Pagina %d de %d"
+
+[LB_GAMETYPE_CHANGED]
+en = "Game mode change detected! Time has been disqualified."
+es = "¡El modo de juego cambio! Se descarto el tiempo."
+
+[LB_AFK_INVISIBLE]
+en = "[AFK] \\x89You went invisible due to inactivity. You will become visible again upon driving."
+es = "[AFK] \\x89Te has hecho invisible por inactividad. Te volveras visible de nuevo cuando vuelvas."
+
+[LB_AFK_TEN_SECS]
+en = "[AFK] \\x89You will be moved to spectator in 10 seconds!"
+es = "[AFK] \\x89¡Seras movid@ a modo espectador en 10 segundos!"
+
+[LB_AFK_MOVED]
+en = "\\x89%s was moved to spectator due to inactivity."
+es = "\\x89%s ha sido movid@ a modo espectador por inactividad."
+
+[LB_SAVE_SCORE]
+en = "Saving score (%d)"
+es = "Guardando tiempo (%d)"
+
+[LB_ADDED_PROFILE]
+en = "Added new profile %d"
+es = "Perfil añadido %d"

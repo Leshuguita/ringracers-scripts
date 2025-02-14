@@ -15,7 +15,6 @@ local StringWriter = lb_string_writer
 local ghost_t = lb_ghost_t
 local profile_t = lb_profile_t
 local isSameRecord = lb_is_same_record
-local tr = lb_translate
 
 ----------------------------
 
@@ -483,7 +482,7 @@ local function SaveRecord(score, map, modeSep, ghosts)
 
 	RecByMap = nil -- TODO just cause of one record???
 
-	print(tr("SAVE_SCORE"):format(score.id))
+	print(("{{ LB_SAVE_SCORE }}"):format(score.id))
 	if isserver then
 		Dirty[score.id] = true
 		if ghosts then
@@ -529,7 +528,7 @@ local function newProfile(player)
 	end
 	table.insert(Profiles, prof)
 	DirtyProfs[#Profiles] = true
-	print(tr("ADDED_PROFILE"):format(#Profiles))
+	print(("{{ LB_ADDED_PROFILE }}"):format(#Profiles))
 	return #Profiles
 end
 rawset(_G, "lb_new_profile", newProfile)

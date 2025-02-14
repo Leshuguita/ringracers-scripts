@@ -1,7 +1,6 @@
 # This is a fork!
 
-currently, allows for translating the text commonly seen by players in the leaderboard, and has a spanish translation already.
-you have to change it in lb_common.lua, though, you can't change it in game (yet? or maybe i'll make it even more static and make the build script do the translating)
+currently allows for translating text (for now, jus what's commonly seen by players), and has a spanish translation already.
 
 if you don't need that, you should probably just use the [original addon](https://github.com/GenericHeroGuy/ringracers-scripts) instead.
 
@@ -20,6 +19,7 @@ For example, to build sglua:
 
 `./pk3make.py build/sglua.txt`
 
+Add `--lang <code>` to build the file in a specific language. By default uses english (`en`).
 Add `-j8` to build with 8 cores, `-z` to force zlib, or `-o` to change the output file.
 More options can be found with `--help`.
 

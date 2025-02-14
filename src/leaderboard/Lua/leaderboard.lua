@@ -21,7 +21,6 @@ local getPortrait = lb_get_portrait
 local isSameRecord = lb_is_same_record
 local GametypeForMap = lb_gametype_for_map
 local GetGametype = lb_get_gametype
-local tr = lb_translate
 
 -- browser.lua
 local InitBrowser = InitBrowser
@@ -96,8 +95,9 @@ local RedFlash = {
 	[1] = 0
 }
 
-local UNCLAIMED = tr("UNCLAIMED")
-local HELP_MESSAGE = "\x88"+tr("HELP_TITLE")+"\n\x89retry exit findmap changelevel spba_clearcheats lb_gui rival scroll lb_encore records levelselect lb_ghost_hide"
+local UNCLAIMED = "{{ LB_UNCLAIMED }}"
+-- first escape code is decimal to avoid lua thinking it + first 2 chars of HELP_TITLE are a 4-long hex code
+local HELP_MESSAGE = "\136{{ LB_HELP_TITLE }}\n\x89retry exit findmap changelevel spba_clearcheats lb_gui rival scroll lb_encore records levelselect lb_ghost_hide"
 
 -- Retry / changelevel map
 local nextMap = nil
@@ -366,7 +366,7 @@ addHook("PlayerSpawn", initLeaderboard)
 
 local function doyoudare(player)
 	if not canstart() or player.spectator then
-		CONS_Printf(player, tr("HOW_DARE_YOU"))
+		CONS_Printf(player, "{{ LB_HOW_DARE_YOU }}")
 		return false
 	end
 	return true
@@ -553,7 +553,7 @@ COM_AddCommand("changelevel", function(player, ...)
 	end
 
 	if not ... then
-		CONS_Printf(player, tr("CHGLVL_USAGE")
+		CONS_Printf(player, ("{{ LB_CHGLVL_USAGE }}")
 		                    :format(RINGS and "RR_XYZ" or "MAPXX"))
 		                    -- look at this hipster syntax!
 		return
@@ -563,20 +563,20 @@ COM_AddCommand("changelevel", function(player, ...)
 	local mapname = ParseMapname(search)
 
 	if not mapname then
-		CONS_Printf(player, tr("CHGLVL_INVALID"):format(search))
+		CONS_Printf(player, ("{{ LB_CHGLVL_INVALID }}"):format(search))
 		return
 	end
 	if not mapheaderinfo[mapnumFromExtended(mapname)] then
-		CONS_Printf(player, tr("CHGLVL_NOT_FOUND"):format(search))
+		CONS_Printf(player, ("{{ LB_CHGLVL_NOT_FOUND }}"):format(search))
 		return
 	end
 
 	local gtab = GametypeForMap(mapname)
 	if not gtab then
-		CONS_Printf(player, tr("CHGLVL_INCOMPATIBLE"):format(search))
+		CONS_Printf(player, ("{{ LB_CHGLVL_INCOMPATIBLE }}"):format(search))
 		return
 	elseif not gtab.enabled then
-		CONS_Printf(player, tr("CHGLVL_DISABLED"):format(gtab.name))
+		CONS_Printf(player, ("{{ LB_CHGLVL_DISABLED }}"):format(gtab.name))
 		return
 	end
 
@@ -619,7 +619,7 @@ COM_AddCommand("rival", function(player, rival, page)
 	page = (tonumber(page) or 1) - 1
 
 	if rival == nil then
-		print(tr("RIVAL_HELP"))
+		print("{{ LB_RIVAL_HELP }}")
 		return
 	end
 
@@ -640,8 +640,8 @@ COM_AddCommand("rival", function(player, rival, page)
 	local mypid = GetProfile(player)
 	local rivalpid = GetProfile({ name = rival })
 
-	print(string.format(tr("RIVAL_TITLE"), rival))
-	print(tr("RIVAL_HEADER"))
+	print(string.format("{{ LB_RIVAL_TITLE }}", rival))
+	print("{{ LB_RIVAL_HEADER }}")
 
 	local maplist = MapList()
 	for i = 1, #maplist do
@@ -724,14 +724,14 @@ COM_AddCommand("rival", function(player, rival, page)
 	end
 
 	print(string.format(
-		tr("RIVAL_YOURS"),
+		"{{ LB_RIVAL_YOURS }}",
 		colors[clamp(-1, totalDiff, 1)],
 		sym[totalDiff<0],
 		ticsToTime(abs(totalDiff))
 	))
 
 	print(string.format(
-		tr("RIVAL_PAGE"),
+		"{{ LB_RIVAL_PAGE }}",
 		page + 1,
 		totalScores / stop + 1
 	))
@@ -1428,7 +1428,7 @@ end
 local function saveTime(player)
 	-- Disqualify if the flags changed mid trial.
 	if checkFlags(player) != Flags then
-		print(tr("GAMETYPE_CHANGED"))
+		print("{{ LB_GAMETYPE_CHANGED }}")
 		S_StartSound(nil, sfx_lose)
 		return
 	end
@@ -1644,19 +1644,19 @@ local function think()
 						--Away from kart
 						if p.afkTime + cv_afk_flashtime.value * TICRATE <= leveltime then
 							if p.afkTime + cv_afk_flashtime.value * TICRATE == leveltime then
-								chatprintf(p, tr("AFK_INVISIBLE"))
+								chatprintf(p, "{{ LB_AFK_INVISIBLE }}")
 							end
 
 							removePlayerItems(p)
 							p.kartstuff[k_hyudorotimer] = 2
 						end
 						if p.afkTime + AFK_BALANCE_WARN == leveltime then
-							chatprintf(p, tr("AFK_TEN_SECS"), false)
+							chatprintf(p, "{{ LB_AFK_TEN_SECS }}", false)
 							S_StartSound(nil, sfx_buzz3, p)
 						end
 						if p.afkTime + AFK_BALANCE < leveltime then
 							p.spectator = true
-							chatprint(tr("AFK_MOVED"):format(p.name), true)
+							chatprint(("{{ LB_AFK_MOVED }}"):format(p.name), true)
 						end
 					end
 				end

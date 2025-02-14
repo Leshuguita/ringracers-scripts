@@ -8,6 +8,7 @@ import zlib
 from asyncio.subprocess import PIPE
 import os
 import asyncio
+import translate
 
 PkLocalHeader = Struct("<"
 	"I" # magic
@@ -62,9 +63,31 @@ ENDMAGIC = 0x06054b50
 
 DEFAULTOUTPUT = "output.pk3"
 
+LANG = "en"
+
 class PkFile:
 	def __repr__(self):
 		return self.name
+
+def TranslateFile(filename, lang):
+	'''
+		translates the file if it's a lua file,
+		writing it to ./tr_lua/ and returning its new filename
+		if its not lua, just returns filename
+	'''
+	# todo: cleanup translations?
+	if filename.endswith(".lua"):
+		with open(filename, 'r') as file:
+			tr = translate.tr_template(file.read(), lang)
+
+		new_path = "tr_lua/"+filename
+		os.makedirs(os.path.dirname(new_path), exist_ok=True)
+		new_file = open(new_path, "w")
+		new_file.write(tr)
+		new_file.close()
+		return new_path
+	else:
+		return filename
 
 async def Deflate(filename, zipname, level, i, usezlib):
 	f = open(filename, "rb")
@@ -97,7 +120,7 @@ async def Deflate(filename, zipname, level, i, usezlib):
 	file.compressedsize = len(file.data)
 	return file, i
 
-async def DoFiles(files, base, level, threads, usezlib):
+async def DoFiles(files, base, level, threads, usezlib, lang):
 	out = {}
 	tasklist = [] # weak references...
 	sem = asyncio.BoundedSemaphore(threads)
@@ -124,7 +147,8 @@ async def DoFiles(files, base, level, threads, usezlib):
 		print(f"[{i}/{total}]", zipname, end="\r")
 
 		await sem.acquire()
-		task = asyncio.create_task(Deflate(name, zipname, level, i, usezlib))
+		filename = TranslateFile(name, lang)
+		task = asyncio.create_task(Deflate(filename, zipname, level, i, usezlib))
 		task.add_done_callback(Done)
 		tasklist.append(task)
 
@@ -161,6 +185,13 @@ async def main(args):
 		print("No list file", f"named {args.listfile} was found." if args.listfile else "specified.")
 		print("Try './pk3make.py build/sglua.txt'")
 		sys.exit()
+
+	# set lang
+	if args.lang:
+		LANG = args.lang
+		print("Language set to '"+LANG+"'")
+	else:
+		print("No language specified, defaulting to english")
 
 	# detect zopfli?
 	if not args.zlib:
@@ -299,7 +330,7 @@ async def main(args):
 			break
 
 	# compress all the input files
-	output = await asyncio.create_task(DoFiles(infiles, args.basepath, args.level, int(args.jobs), args.zlib))
+	output = await asyncio.create_task(DoFiles(infiles, args.basepath, args.level, int(args.jobs), args.zlib, LANG))
 	if not output and not orderchanged:
 		sys.exit("Nothing to do!")
 
@@ -343,6 +374,8 @@ if __name__ == "__main__":
 	parser.add_argument("listfile",
 	                    nargs="?",
 	                    help="path to list file")
+	parser.add_argument("--lang",
+	                    help="change the language used for the addons")
 	parser.add_argument("-o", "--output",
 	                    default=DEFAULTOUTPUT,
 	                    help=f"path to output (default: {DEFAULTOUTPUT})")
