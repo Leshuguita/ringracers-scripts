@@ -21,6 +21,7 @@ local getPortrait = lb_get_portrait
 local isSameRecord = lb_is_same_record
 local GametypeForMap = lb_gametype_for_map
 local GetGametype = lb_get_gametype
+local tr = lb_translate
 
 -- browser.lua
 local InitBrowser = InitBrowser
@@ -95,8 +96,8 @@ local RedFlash = {
 	[1] = 0
 }
 
-local UNCLAIMED = "Unclaimed Record"
-local HELP_MESSAGE = "\x88Leaderboard Commands:\n\x89retry exit findmap changelevel spba_clearcheats lb_gui rival scroll lb_encore records levelselect lb_ghost_hide"
+local UNCLAIMED = tr("UNCLAIMED")
+local HELP_MESSAGE = "\x88"+tr("HELP_TITLE")+"\n\x89retry exit findmap changelevel spba_clearcheats lb_gui rival scroll lb_encore records levelselect lb_ghost_hide"
 
 -- Retry / changelevel map
 local nextMap = nil
@@ -365,7 +366,7 @@ addHook("PlayerSpawn", initLeaderboard)
 
 local function doyoudare(player)
 	if not canstart() or player.spectator then
-		CONS_Printf(player, "How dare you")
+		CONS_Printf(player, tr("HOW_DARE_YOU"))
 		return false
 	end
 	return true
@@ -552,7 +553,7 @@ COM_AddCommand("changelevel", function(player, ...)
 	end
 
 	if not ... then
-		CONS_Printf(player, ("Usage: changelevel %s or Map Name")
+		CONS_Printf(player, tr("CHGLVL_USAGE")
 		                    :format(RINGS and "RR_XYZ" or "MAPXX"))
 		                    -- look at this hipster syntax!
 		return
@@ -562,20 +563,20 @@ COM_AddCommand("changelevel", function(player, ...)
 	local mapname = ParseMapname(search)
 
 	if not mapname then
-		CONS_Printf(player, ("Invalid map name: %s"):format(search))
+		CONS_Printf(player, tr("CHGLVL_INVALID"):format(search))
 		return
 	end
 	if not mapheaderinfo[mapnumFromExtended(mapname)] then
-		CONS_Printf(player, ("Map doesn't exist: %s"):format(search))
+		CONS_Printf(player, tr("CHGLVL_NOT_FOUND"):format(search))
 		return
 	end
 
 	local gtab = GametypeForMap(mapname)
 	if not gtab then
-		CONS_Printf(player, ("Incompatible gametype: %s"):format(search))
+		CONS_Printf(player, tr("CHGLVL_INCOMPATIBLE"):format(search))
 		return
 	elseif not gtab.enabled then
-		CONS_Printf(player, ("Gametype %s has been disabled by the server."):format(gtab.name))
+		CONS_Printf(player, tr("CHGLVL_DISABLED"):format(gtab.name))
 		return
 	end
 
@@ -618,7 +619,7 @@ COM_AddCommand("rival", function(player, rival, page)
 	page = (tonumber(page) or 1) - 1
 
 	if rival == nil then
-		print("Print the times of your rival.\nUsage: rival <playername> <page>")
+		print(tr("RIVAL_HELP"))
 		return
 	end
 
@@ -639,8 +640,8 @@ COM_AddCommand("rival", function(player, rival, page)
 	local mypid = GetProfile(player)
 	local rivalpid = GetProfile({ name = rival })
 
-	print(string.format("\x89%s's times:", rival))
-	print("MAP\tTime\tDiff    \tMode")
+	print(string.format(tr("RIVAL_TITLE"), rival))
+	print(tr("RIVAL_HEADER"))
 
 	local maplist = MapList()
 	for i = 1, #maplist do
@@ -723,14 +724,14 @@ COM_AddCommand("rival", function(player, rival, page)
 	end
 
 	print(string.format(
-		"Your score = %s%s%s",
+		tr("RIVAL_YOURS"),
 		colors[clamp(-1, totalDiff, 1)],
 		sym[totalDiff<0],
 		ticsToTime(abs(totalDiff))
 	))
 
 	print(string.format(
-		"Page %d out of %d",
+		tr("RIVAL_PAGE"),
 		page + 1,
 		totalScores / stop + 1
 	))
@@ -1427,7 +1428,7 @@ end
 local function saveTime(player)
 	-- Disqualify if the flags changed mid trial.
 	if checkFlags(player) != Flags then
-		print("Game mode change detected! Time has been disqualified.")
+		print(tr("GAMETYPE_CHANGED"))
 		S_StartSound(nil, sfx_lose)
 		return
 	end
@@ -1643,19 +1644,19 @@ local function think()
 						--Away from kart
 						if p.afkTime + cv_afk_flashtime.value * TICRATE <= leveltime then
 							if p.afkTime + cv_afk_flashtime.value * TICRATE == leveltime then
-								chatprintf(p, "[AFK] \x89You went invisible due to inactivity. You will become visible again upon driving.")
+								chatprintf(p, tr("AFK_INVISIBLE"))
 							end
 
 							removePlayerItems(p)
 							p.kartstuff[k_hyudorotimer] = 2
 						end
 						if p.afkTime + AFK_BALANCE_WARN == leveltime then
-							chatprintf(p, "[AFK] \x89You will be moved to spectator in 10 seconds!", false)
+							chatprintf(p, tr("AFK_TEN_SECS"), false)
 							S_StartSound(nil, sfx_buzz3, p)
 						end
 						if p.afkTime + AFK_BALANCE < leveltime then
 							p.spectator = true
-							chatprint("\x89" + p.name + " was moved to spectator due to inactivity.", true)
+							chatprint(tr("AFK_MOVED"):format(p.name), true)
 						end
 					end
 				end

@@ -454,3 +454,105 @@ local writer = { __index = {
 rawset(_G, "lb_string_writer", function()
 	return setmetatable({}, writer)
 end)
+
+-- some strings are still untranslated:
+--   - leaderboard.lua's admin only commands
+--   - most stuff in lb_store.lua
+--   - verbose logs from lb_net.lua
+--   - gametype names in browser.lua and leaderboard.lua
+local tr_strings = {
+	UNCLAIMED = {
+		en = "Unclaimed record",
+		es = "No hay record"
+	},
+	HELP_TITLE = {
+		en = "Leaderboard Commands:",
+		es = "Comandos de Leaderboard:"
+	},
+	HOW_DARE_YOU = {
+		en = "How dare you",
+		es = "Como te atreves"
+	},
+	CHGLVL_USAGE = {
+		en = "Usage: changelevel %s or Map Name",
+		es = "Uso: changelevel %s o Nombre del Mapa"
+	},
+	CHGLVL_INVALID = {
+		en = "Invalid map name: %s",
+		es = "Nombre de mapa no valido: %s"
+	},
+	CHGLVL_NOT_FOUND = {
+		en = "Map doesn't exist: %s",
+		es = "El mapa no existe: %s",
+	},
+	CHGLVL_INCOMPATIBLE = {
+		en = "Incompatible gametype: %s",
+		es = "Modo de juego no compatible: %s"
+	},
+	CHGLVL_DISABLED = {
+		en = "Gametype %s has been disabled by the server.",
+		es = "El modo de juego %s esta desactivado en este servidor."
+	},
+	RIVAL_HELP = {
+		en = "Print the times of your rival.\nUsage: rival <playername> <page>",
+		es = "Muestra los tiempos de tu rival.\nUso: rival <jugador> <pagina>"
+	},
+	RIVAL_TITLE = {
+		en = "\x89%s's times:",
+		es = "\x89Tiempos de %s:"
+	},
+	RIVAL_HEADER = {
+		en = "MAP\tTime\tDiff    \tMode",
+		es = "MAPA\tTiempo\tDif    \tModo"
+	},
+	RIVAL_YOURS = {
+		en = "Your score = %s%s%s",
+		es = "Tu tiempo = %s%s%s"
+	},
+	RIVAL_PAGE = {
+		en = "Page %d out of %d",
+		es = "Pagina %d de %d"
+	},
+	GAMETYPE_CHANGED = {
+		en = "Game mode change detected! Time has been disqualified.",
+		es = "¡El modo de juego cambio! Se descarto el tiempo."
+	},
+	AFK_INVISIBLE = {
+		en = "[AFK] \x89You went invisible due to inactivity. You will become visible again upon driving.",
+		es = "[AFK] \x89Te has hecho invisible por inactividad. Te volveras visible de nuevo cuando vuelvas."
+	},
+	AFK_TEN_SECS = {
+		en = "[AFK] \x89You will be moved to spectator in 10 seconds!",
+		es = "[AFK] \x89¡Seras movid@ a modo espectador en 10 segundos!"
+	},
+	AFK_MOVED = {
+		en = "\x89%s was moved to spectator due to inactivity.",
+		es = "\x89%s ha sido movid@ a modo espectador por inactividad."
+	},
+	SAVE_SCORE = {
+		en = "Saving score (%d)",
+		es = "Guardando tiempo (%d)"
+	}
+	ADDED_PROFILE = {
+		en = "Added new profile %d",
+		es = "Perfil añadido %d"
+	}
+}
+-- todo: make language changable at runtime?
+local lang = "es"
+-- function for translating user-facing strings
+rawset(_G, "lb_translate", function(key)
+	local k = tr_strings[key]
+	if k == nil then
+		print("error (leaderboard): unknown translation key")
+		return "[error: Unknown string key]"
+	end
+	
+	local s = k[lang]
+	if s == nil then
+		print("error (leaderboard): unknown language " + lang + " for key " + key + ", defaulting to english")
+		return k["en"]		
+	end
+
+	return s
+end)
