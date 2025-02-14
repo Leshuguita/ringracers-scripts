@@ -1,2 +1,3 @@
 out/
 tr_lua/
+__pycache__/
