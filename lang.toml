@@ -73,7 +73,7 @@ es = "Guardando tiempo (%d)"
 
 [LB_ADDED_PROFILE]
 en = "Added new profile %d"
-es = "Perfil añadido %d"
+es = "Nuevo perfil registrado %d"
 
 # restat
 [RS_SPD]
