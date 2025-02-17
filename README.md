@@ -1,6 +1,6 @@
 # This is a fork!
 
-currently allows for translating text (for now, jus what's commonly seen by players), and has a spanish translation already.
+currently allows for translating text (for now, just what's commonly seen by players), and has a spanish translation already.
 
 if you don't need that, you should probably just use the [original addon](https://github.com/GenericHeroGuy/ringracers-scripts) instead.
 
