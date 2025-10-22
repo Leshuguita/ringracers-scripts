@@ -1,86 +1,92 @@
 #!/usr/bin/python
 # A homebrew ZIP file writer by GenericHeroGuy
 
+import asyncio
+import os
 import sys
-from struct import Struct
-from glob import glob
 import zlib
 from asyncio.subprocess import PIPE
-import os
-import asyncio
+from glob import glob
+from struct import Struct
+
 import translate
 
-PkLocalHeader = Struct("<"
-	"I" # magic
-	"H" # min version
-	"H" # flags
-	"H" # method
-	"H" # file time
-	"H" # file date
-	"I" # CRC32
-	"I" # compressed size
-	"I" # uncompressed size
-	"H" # length of filename
-	"H" # length of extra
+PkLocalHeader = Struct(
+	"<"
+	"I"  # magic
+	"H"  # min version
+	"H"  # flags
+	"H"  # method
+	"H"  # file time
+	"H"  # file date
+	"I"  # CRC32
+	"I"  # compressed size
+	"I"  # uncompressed size
+	"H"  # length of filename
+	"H"  # length of extra
 )
 
-PkCentralHeader = Struct("<"
-	"I" # magic
-	"H" # created version
-	"H" # min version
-	"H" # flags
-	"H" # method
-	"H" # file time
-	"H" # file date
-	"I" # CRC32
-	"I" # compressed size
-	"I" # uncompressed size
-	"H" # length of filename
-	"H" # length of extra
-	"H" # comment length
-	"H" # disk number
-	"H" # internal attributes
-	"I" # external attributes
-	"I" # offset to local header
+PkCentralHeader = Struct(
+	"<"
+	"I"  # magic
+	"H"  # created version
+	"H"  # min version
+	"H"  # flags
+	"H"  # method
+	"H"  # file time
+	"H"  # file date
+	"I"  # CRC32
+	"I"  # compressed size
+	"I"  # uncompressed size
+	"H"  # length of filename
+	"H"  # length of extra
+	"H"  # comment length
+	"H"  # disk number
+	"H"  # internal attributes
+	"I"  # external attributes
+	"I"  # offset to local header
 )
 
-PkCentralEnd = Struct("<"
-	"I" # magic
-	"H" # disk number
-	"H" # disk number of central directory
-	"H" # number of entries on this disk
-	"H" # number of entries total
-	"I" # size of central directory
-	"I" # offset to central directory
-	"H" # comment length
+PkCentralEnd = Struct(
+	"<"
+	"I"  # magic
+	"H"  # disk number
+	"H"  # disk number of central directory
+	"H"  # number of entries on this disk
+	"H"  # number of entries total
+	"I"  # size of central directory
+	"I"  # offset to central directory
+	"H"  # comment length
 )
 
 MINVERSION = 20
 CREATEVERSION = 30
-CENTRALMAGIC = 0x02014b50
-LOCALMAGIC = 0x04034b50
-ENDMAGIC = 0x06054b50
+CENTRALMAGIC = 0x02014B50
+LOCALMAGIC = 0x04034B50
+ENDMAGIC = 0x06054B50
 
 DEFAULTOUTPUT = "output.pk3"
 
 LANG = "en"
 
+
 class PkFile:
 	def __repr__(self):
 		return self.name
 
+
 def TranslateFile(filename, lang):
-	'''
-		translates the file if it's a lua file,
-		writing it to ./tr_lua/ and returning its new filename
-		if its not lua, just returns filename
-	'''
+	"""
+	translates the file if it's a lua file,
+	writing it to ./tr_lua/ and returning its new filename
+	if its not lua, just returns filename
+	"""
 	# todo: cleanup translations?
 	if filename.endswith(".lua"):
-		with open(filename, 'r') as file:
+		with open(filename, "r") as file:
 			tr = translate.tr_template(file.read(), lang)
 
-		new_path = "tr_lua/"+filename
+		new_path = "tr_lua/" + filename
 		os.makedirs(os.path.dirname(new_path), exist_ok=True)
 		new_file = open(new_path, "w")
 		new_file.write(tr)
@@ -88,6 +94,7 @@ def TranslateFile(filename, lang):
 		return new_path
 	else:
 		return filename
+
 
 async def Deflate(filename, zipname, level, i, usezlib):
 	f = open(filename, "rb")
@@ -97,14 +104,16 @@ async def Deflate(filename, zipname, level, i, usezlib):
 
 	if usezlib:
 		f.seek(0, 0)
-		obj = zlib.compressobj(level = 9, wbits = -15)
+		obj = zlib.compressobj(level=9, wbits=-15)
 		file.data = obj.compress(f.read())
 		file.data += obj.flush()
 		f.close()
-	else: # zopfli
+	else:  # zopfli
 		f.close()
 		# zopfli does not accept input from stdin
-		p = await asyncio.create_subprocess_shell(f'zopfli -c --deflate --i{level} "{filename}"', stdout=PIPE, stderr=PIPE)
+		p = await asyncio.create_subprocess_shell(
+			f'zopfli -c --deflate --i{level} "{filename}"', stdout=PIPE, stderr=PIPE
+		)
 		file.data, stderr = await p.communicate()
 		# zopfli doesn't set exit code on error
 		if stderr:
@@ -120,9 +129,10 @@ async def Deflate(filename, zipname, level, i, usezlib):
 	file.compressedsize = len(file.data)
 	return file, i
 
+
 async def DoFiles(files, base, level, threads, usezlib, lang):
 	out = {}
-	tasklist = [] # weak references...
+	tasklist = []  # weak references...
 	sem = asyncio.BoundedSemaphore(threads)
 
 	def Done(task):
@@ -160,6 +170,7 @@ async def DoFiles(files, base, level, threads, usezlib, lang):
 
 	return out
 
+
 # six levels of indentation, GO!
 def FindCentralEnd(f):
 	while a := f.read(1):
@@ -170,10 +181,12 @@ def FindCentralEnd(f):
 						return
 	raise ValueError("No central directory found")
 
+
 def SetBasePath(args, new):
 	if not new.endswith("/"):
 		new += "/"
 	args.basepath = new
+
 
 async def main(args):
 	try:
@@ -182,16 +195,20 @@ async def main(args):
 		else:
 			listfile = open(args.listfile, "r")
 	except (FileNotFoundError, TypeError):
-		print("No list file", f"named {args.listfile} was found." if args.listfile else "specified.")
+		print(
+			"No list file",
+			f"named {args.listfile} was found." if args.listfile else "specified.",
+		)
 		print("Try './pk3make.py build/sglua.txt'")
 		sys.exit()
 
 	# set lang
 	if args.lang:
 		LANG = args.lang
-		print("Language set to '"+LANG+"'")
+		print("Language set to '" + LANG + "'")
 	else:
 		print("No language specified, defaulting to english")
+		LANG = "en"
 
 	# detect zopfli?
 	if not args.zlib:
@@ -248,7 +265,9 @@ async def main(args):
 		os.makedirs(dirs, exist_ok=True)
 
 	if not args.comment:
-		p = await asyncio.create_subprocess_shell("git rev-parse --short --verify HEAD", stdout=PIPE, stderr=PIPE)
+		p = await asyncio.create_subprocess_shell(
+			"git rev-parse --short --verify HEAD", stdout=PIPE, stderr=PIPE
+		)
 		stdout, stderr = await p.communicate()
 		args.comment = stdout.decode().strip() if not stderr else "unknown"
 
@@ -289,7 +308,25 @@ async def main(args):
 		for _ in range(entries):
 			central = PkCentralHeader.unpack(f.read(PkCentralHeader.size))
 			pa = PkFile()
-			magic, _, _, pa.flags, pa.method, pa.modtime, pa.moddate, pa.crc, pa.compressedsize, pa.size, namelen, extralen, commentlen, _, _, _, localofs = central
+			(
+				magic,
+				_,
+				_,
+				pa.flags,
+				pa.method,
+				pa.modtime,
+				pa.moddate,
+				pa.crc,
+				pa.compressedsize,
+				pa.size,
+				namelen,
+				extralen,
+				commentlen,
+				_,
+				_,
+				_,
+				localofs,
+			) = central
 			if magic != CENTRALMAGIC:
 				raise ValueError("Corrupted central directory")
 			pa.name = f.read(namelen).decode("ascii")
@@ -303,7 +340,19 @@ async def main(args):
 				else:
 					f.seek(localofs)
 					local = PkLocalHeader.unpack(f.read(PkLocalHeader.size))
-					magic, _, _, _, _, _, _, _, _, namelen, extralen, = local
+					(
+						magic,
+						_,
+						_,
+						_,
+						_,
+						_,
+						_,
+						_,
+						_,
+						namelen,
+						extralen,
+					) = local
 					if magic != LOCALMAGIC:
 						raise ValueError("Corrupted local header")
 					f.read(namelen + extralen)
@@ -311,13 +360,13 @@ async def main(args):
 					f.seek(old)
 
 					try:
-						#print("Passing through", pa.name)
+						# print("Passing through", pa.name)
 						passthru[indices[args.basepath + pa.name]] = pa
 						if infiles[args.basepath + pa.name]:
 							infiles[args.basepath + pa.name] = 0
 					except KeyError:
 						# SLADE adding directory entries most likely, don't bother yelling
-						pass#print(pa.name, "does not exist in input files")
+						pass  # print(pa.name, "does not exist in input files")
 			except FileNotFoundError:
 				print("Unknown file", pa.name, "in archive. File will be deleted!")
 				orderchanged = True
@@ -330,7 +379,9 @@ async def main(args):
 			break
 
 	# compress all the input files
-	output = await asyncio.create_task(DoFiles(infiles, args.basepath, args.level, int(args.jobs), args.zlib, LANG))
+	output = await asyncio.create_task(
+		DoFiles(infiles, args.basepath, args.level, int(args.jobs), args.zlib, LANG)
+	)
 	if not output and not orderchanged:
 		sys.exit("Nothing to do!")
 
@@ -343,8 +394,19 @@ async def main(args):
 	strip = args.strip
 
 	for file in outfiles:
-		local = PkLocalHeader.pack(LOCALMAGIC, MINVERSION, file.flags, file.method, file.modtime, file.moddate, file.crc,
-		                           file.compressedsize, file.size, 0 if strip else len(file.name), len(file.extra))
+		local = PkLocalHeader.pack(
+			LOCALMAGIC,
+			MINVERSION,
+			file.flags,
+			file.method,
+			file.modtime,
+			file.moddate,
+			file.crc,
+			file.compressedsize,
+			file.size,
+			0 if strip else len(file.name),
+			len(file.extra),
+		)
 		offsets[file] = out.tell()
 		out.write(local)
 		if not strip:
@@ -354,9 +416,25 @@ async def main(args):
 	centralstart = out.tell()
 
 	for file in outfiles:
-		central = PkCentralHeader.pack(CENTRALMAGIC, CREATEVERSION, MINVERSION, file.flags, file.method, file.modtime,
-		                               file.moddate, file.crc, file.compressedsize, file.size, len(file.name),
-		                               len(file.extra), len(args.comment or file.comment), 0, 0, 0, offsets[file])
+		central = PkCentralHeader.pack(
+			CENTRALMAGIC,
+			CREATEVERSION,
+			MINVERSION,
+			file.flags,
+			file.method,
+			file.modtime,
+			file.moddate,
+			file.crc,
+			file.compressedsize,
+			file.size,
+			len(file.name),
+			len(file.extra),
+			len(args.comment or file.comment),
+			0,
+			0,
+			0,
+			offsets[file],
+		)
 		out.write(central)
 		out.write(file.name.encode("ascii"))
 		# Kart doesn't count the bytes used by the archive comment and complains
@@ -364,43 +442,60 @@ async def main(args):
 		out.write((args.comment or file.comment).encode("ascii"))
 		args.comment = ""
 
-	end = PkCentralEnd.pack(ENDMAGIC, 0, 0, len(outfiles), len(outfiles), out.tell() - centralstart, centralstart, 0)
+	end = PkCentralEnd.pack(
+		ENDMAGIC,
+		0,
+		0,
+		len(outfiles),
+		len(outfiles),
+		out.tell() - centralstart,
+		centralstart,
+		0,
+	)
 	out.write(end)
 	out.close()
 
+
 if __name__ == "__main__":
 	from argparse import ArgumentParser
+
 	parser = ArgumentParser()
-	parser.add_argument("listfile",
-	                    nargs="?",
-	                    help="path to list file")
-	parser.add_argument("--lang",
-	                    help="change the language used for the addons")
-	parser.add_argument("-o", "--output",
-	                    default=DEFAULTOUTPUT,
-	                    help=f"path to output (default: {DEFAULTOUTPUT})")
-	parser.add_argument("-b", "--basepath",
-	                    default="",
-	                    help="base path to remove from filenames")
-	parser.add_argument("-j", "--jobs",
-	                    default="1",
-	                    help="number of files to deflate concurrently")
-	parser.add_argument("-l", "--level",
-	                    default="15",
-	                    help="Zopfli iterations (default: 15)")
-	parser.add_argument("-f", "--force",
-	                    action="store_true",
-	                    help="force the archive to be rewritten")
-	parser.add_argument("-s", "--strip",
-	                    action="store_true",
-	                    help="strip filenames from local headers "
-	                    "(may or may not be allowed by the spec)")
-	parser.add_argument("-c", "--comment",
-	                    default="",
-	                    help="add comment to first file of archive")
-	parser.add_argument("-z", "--zlib",
-	                    action="store_true",
-	                    help="use zlib instead of Zopfli (instant output, worse compression)")
+	parser.add_argument("listfile", nargs="?", help="path to list file")
+	parser.add_argument("--lang", help="change the language used for the addons")
+	parser.add_argument(
+		"-o",
+		"--output",
+		default=DEFAULTOUTPUT,
+		help=f"path to output (default: {DEFAULTOUTPUT})",
+	)
+	parser.add_argument(
+		"-b", "--basepath", default="", help="base path to remove from filenames"
+	)
+	parser.add_argument(
+		"-j", "--jobs", default="1", help="number of files to deflate concurrently"
+	)
+	parser.add_argument(
+		"-l", "--level", default="15", help="Zopfli iterations (default: 15)"
+	)
+	parser.add_argument(
+		"-f", "--force", action="store_true", help="force the archive to be rewritten"
+	)
+	parser.add_argument(
+		"-s",
+		"--strip",
+		action="store_true",
+		help="strip filenames from local headers "
+		"(may or may not be allowed by the spec)",
+	)
+	parser.add_argument(
+		"-c", "--comment", default="", help="add comment to first file of archive"
+	)
+	parser.add_argument(
+		"-z",
+		"--zlib",
+		action="store_true",
+		help="use zlib instead of Zopfli (instant output, worse compression)",
+	)
 	args = parser.parse_args()
 
 	asyncio.run(main(args))
