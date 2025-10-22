@@ -29,6 +29,7 @@ local RecordName = lb_record_name
 
 -----------------------------
 
+-- true if ringracers, false if kart
 local RINGS = CODEBASE >= 220
 local TURNING = RINGS and "turning" or "driftturn"
 local V_ALLOWLOWERCASE = V_ALLOWLOWERCASE or 0
@@ -131,6 +132,8 @@ local sin = sin
 local function drawMapPatch(v, offset)
 	local scale = FRACUNIT / (abs(offset) + scalar) / (RINGS and 2 or 1)
 	local mapName = getMap(offset)
+	-- kart uses the MAPXXP wad patch for level thumbnails
+	-- TODO: ring racers does not expose level thumbnails to lua. is this a thing in 2.4? no idea.
 	local patchName = mapName.."P"
 	local mapp = v.patchExists(patchName) and v.cachePatch(patchName) or v.cachePatch("BLANKLVL")
 
