@@ -23,7 +23,7 @@ Lua/Gameplay/MiscTweaks/tumbletech.lua
 Lua/Gameplay/Physics/slopes.lua
 Lua/HUD/driftgauge.lua
 Lua/HUD/hitlist.lua
-Lua/HUD/neoscoreboad.lua
+Lua/HUD/neoscoreboard.lua
 Lua/Server/unrestrictskins.lua
 Lua/Server/newmotd.lua
 Lua/Server/intermissiontips.lua
