@@ -28,7 +28,7 @@ def tr(key, lang):
 			+ key
 			+ "'. Defaulting to english."
 		)
-		e = k.get(english)
+		e = k.get("en")
 		if e is None:
 			raise Exception("Missing english (en) for translation key '" + key + "'")
 		else:
