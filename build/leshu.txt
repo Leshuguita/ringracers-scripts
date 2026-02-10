@@ -32,3 +32,4 @@ Lua/Server/intermissiontips.lua
 Graphics/Restat/**
 Graphics/HitList/**
 Graphics/DriftGauge/**
+Graphics/NeoScoreBoard/**
